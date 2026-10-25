@@ -4,34 +4,23 @@ Sistema web moderno desenvolvido em **React** e **JavaScript** (utilizando o **V
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+## 🛠️ O que instalar antes de começar (Pré-requisitos)
 
-Este projeto foi desenvolvido com uma arquitetura moderna baseada em componentes React:
-* **React** (Biblioteca principal para construção da interface)
-* **Vite** (Empacotador e ambiente de desenvolvimento rápido)
-* **JavaScript (ES6+)**
-* **Tailwind CSS** (Framework de estilização responsiva)
-* **Lucide React** (Biblioteca de ícones modernos)
+Para rodar este projeto no seu computador, você precisará instalar apenas duas ferramentas essenciais:
 
----
+### 1. **Node.js** (Ambiente de execução para o React e gerenciador de pacotes `npm`)
+* **Onde baixar:** [https://nodejs.org/](https://nodejs.org/)
+* **Instruções:** Baixe e instale a versão **LTS** (recomendada). A instalação do Node.js já instala automaticamente o **npm** (Node Package Manager), que será usado para baixar as bibliotecas do projeto.
 
-## 👥 Perfis de Acesso
-
-O sistema conta com dois tipos de perfis principais na sua interface interativa:
-1. **Paciente**: Permite visualizar o histórico de consultas, marcar novos horários por especialidade, acompanhar artigos recomendados de saúde e interagir com o assistente virtual (Chatbot).
-2. **Médico**: Permite gerir a agenda diária de pacientes, visualizar prontuários e organizar o fluxo de atendimento clínico.
+### 2. **Git** (Sistema de controle de versão para clonar o repositório)
+* **Onde baixar:** [https://git-scm.com/downloads](https://git-scm.com/downloads)
+* **Instruções:** Faça o download de acordo com o seu sistema operacional (Windows/Mac/Linux) e siga o assistente de instalação padrão.
 
 ---
 
-## ⚙️ Como Executar o Projeto Localmente
+## 💻 O que instalar pelo Terminal (Dependências do Projeto)
 
-Para executar este projeto no teu computador para fins de teste ou apresentação, segue os passos abaixo:
+Após clonar o repositório e abrir a pasta no terminal, todas as bibliotecas necessárias do projeto (React, Vite, Tailwind CSS e Lucide Icons) serão instaladas automaticamente com um único comando:
 
-### Pré-requisitos
-Certifica-te de que tens o **Node.js** instalado no teu computador.
-
-### Passos:
-
-1. Clona este repositório para o teu computador:
-   ```bash
-   git clone [https://github.com/lucascorreia90/medconecta.git](https://github.com/lucascorreia90/medconecta.git)
+```bash
+npm install
