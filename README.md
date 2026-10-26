@@ -1,5 +1,5 @@
 # 🏥 MedConecta — Gestão Ambulatorial e Controle de Absenteísmo
-**Projeto Tópicos Integradores — Análise e Desenvolvimento de Sistemas (ADS Uninassau )**  
+**Projeto Tópicos Integradores — Análise e Desenvolvimento de Sistemas (ADS  ) Uninassau **  
 **Local de Aplicação:** Unidade Mista de Triunfo-PE / Rede Municipal de Saúde  
 
 ---
