@@ -10,6 +10,27 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
   const [configSubTab, setConfigSubTab] = useState('account'); 
 
+  // Notificações Recíprocas / Em Tempo Real
+  const [notificacoesPaciente, setNotificacoesPaciente] = useState([
+    {
+      id: 1,
+      titulo: 'Consulta Agendada',
+      descricao: 'Sua consulta de Oncologia foi agendada para 14/11/2026 às 09:00 com Dr. Emiliano Figueira.',
+      data: 'Hoje',
+      lida: false
+    }
+  ]);
+
+  const [notificacoesMedico, setNotificacoesMedico] = useState([
+    {
+      id: 1,
+      titulo: 'Novo Exame Enviado',
+      descricao: 'A paciente Fernanda Silva enviou o resultado de Biópsia do Pulmão para análise.',
+      data: 'Hoje',
+      lida: false
+    }
+  ]);
+
   // Estados para marcação de consulta
   const [hospitalSelect, setHospitalSelect] = useState('UNIDADE MISTA DE TRIUNFO-PE');
   const [especialidadeSelect, setEspecialidadeSelect] = useState('ONCOLOGIA');
@@ -234,17 +255,6 @@ export default function App() {
     setModalAtualizarProntuario(null);
   };
 
-  // Função para calcular os dias restantes até à próxima consulta
-  const calcularDiasRestantes = (dataStr) => {
-    if (!dataStr) return null;
-    const hoje = new Date();
-    hoje.setHours(0, 0, 0, 0);
-    const dataConsultaObj = new Date(dataStr);
-    const diferencaTempo = dataConsultaObj - hoje;
-    const diferencaDias = Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
-    return diferencaDias;
-  };
-
   // Funções para gerir o absenteísmo
   const confirmarPresencaConsulta = (id) => {
     setConsultasPaciente(consultasPaciente.map(c => c.id === id ? { ...c, statusPresenca: "Confirmado" } : c));
@@ -261,15 +271,18 @@ export default function App() {
   // Função para paciente agendar/solicitar consulta
   const handleAgendarConsulta = (e) => {
     e.preventDefault();
-    const novaConsulta = {
-      id: Date.now(),
+    const idUnico = Date.now();
+    const dataFormatada = dataConsulta ? dataConsulta.split('-').reverse().join('/') : '25/10/26';
+
+    const novaConsultaPaciente = {
+      id: idUnico,
       hospital: hospitalSelect,
       endereco: "Centro, Triunfo - PE",
       especialidade: especialidadeSelect,
       horario: horarioConsulta,
       sala: "SALA 043",
       dataOriginal: dataConsulta,
-      data: dataConsulta ? dataConsulta.split('-').reverse().join('/') : '25/10/26',
+      data: dataFormatada,
       medico: medicoSelect,
       queixa: queixaConsulta || "Não informada",
       statusPresenca: "Pendente",
@@ -277,8 +290,36 @@ export default function App() {
       taxaAbsenteismoPessoal: "100% de Presença"
     };
 
-    setConsultasPaciente([novaConsulta, ...consultasPaciente]);
-    alert("Consulta solicitada/agendada com sucesso! Lembre-se de confirmar sua presença na aba de Consultas.");
+    const novaConsultaMedico = {
+      id: idUnico,
+      hospital: hospitalSelect,
+      endereco: "Centro, Triunfo - PE",
+      especialidade: especialidadeSelect,
+      horario: horarioConsulta,
+      sala: "SALA 043",
+      dataOriginal: dataConsulta,
+      data: dataFormatada,
+      paciente: "FERNANDA SILVA",
+      queixa: queixaConsulta || "Solicitação de consulta pelo paciente",
+      statusPresenca: "Pendente",
+      prontuario: "Novo agendamento efetuado via portal do paciente."
+    };
+
+    setConsultasPaciente([novaConsultaPaciente, ...consultasPaciente]);
+    setConsultasMedico([novaConsultaMedico, ...consultasMedico]);
+
+    setNotificacoesMedico(prev => [
+      {
+        id: Date.now(),
+        titulo: 'Nova Consulta Agendada por Paciente',
+        descricao: `A paciente Fernanda Silva marcou ${especialidadeSelect} para o dia ${dataFormatada} às ${horarioConsulta}.`,
+        data: 'Agora',
+        lida: false
+      },
+      ...prev
+    ]);
+
+    alert("Consulta solicitada/agendada com sucesso! A agenda do médico e as notificações foram atualizadas instantaneamente.");
     setQueixaConsulta('');
     setActiveTab('consultas');
   };
@@ -288,15 +329,18 @@ export default function App() {
     e.preventDefault();
     if (!modalSolicitarConsulta) return;
 
+    const idUnico = Date.now();
+    const dataFormatada = dataMedicoSolicita.split('-').reverse().join('/');
+
     const novaConsultaPaciente = {
-      id: Date.now(),
+      id: idUnico,
       hospital: "UNIDADE MISTA DE TRIUNFO-PE",
       endereco: "Centro, Triunfo - PE",
       especialidade: especialidadeMedicoSolicita,
       horario: horarioMedicoSolicita,
       sala: "SALA 043",
       dataOriginal: dataMedicoSolicita,
-      data: dataMedicoSolicita.split('-').reverse().join('/'),
+      data: dataFormatada,
       medico: "DR. EMILIANO FIGUEIRA",
       queixa: "Solicitação direta da equipe médica municipal",
       statusPresenca: "Pendente (Solicitado pelo Médico)",
@@ -304,8 +348,36 @@ export default function App() {
       taxaAbsenteismoPessoal: modalSolicitarConsulta.taxaPresenca
     };
 
+    const novaConsultaMedico = {
+      id: idUnico,
+      hospital: "UNIDADE MISTA DE TRIUNFO-PE",
+      endereco: "Centro, Triunfo - PE",
+      especialidade: especialidadeMedicoSolicita,
+      horario: horarioMedicoSolicita,
+      sala: "SALA 043",
+      dataOriginal: dataMedicoSolicita,
+      data: dataFormatada,
+      paciente: modalSolicitarConsulta.nome,
+      queixa: "Consulta solicitada pelo médico",
+      statusPresenca: "Confirmado",
+      prontuario: `Histórico clínico ativo. Condição: ${modalSolicitarConsulta.condicao}`
+    };
+
     setConsultasPaciente([novaConsultaPaciente, ...consultasPaciente]);
-    alert(`Consulta solicitada com sucesso para o(a) paciente ${modalSolicitarConsulta.nome}! A notificação foi enviada ao painel dele(a).`);
+    setConsultasMedico([novaConsultaMedico, ...consultasMedico]);
+
+    setNotificacoesPaciente(prev => [
+      {
+        id: Date.now(),
+        titulo: 'Consulta Marcada pelo Médico',
+        descricao: `Dr. Emiliano Figueira marcou uma consulta de ${especialidadeMedicoSolicita} para si no dia ${dataFormatada} às ${horarioMedicoSolicita}.`,
+        data: 'Agora',
+        lida: false
+      },
+      ...prev
+    ]);
+
+    alert(`Consulta solicitada com sucesso para o(a) paciente ${modalSolicitarConsulta.nome}! A notificação foi enviada ao painel dele(a) e adicionada à sua agenda.`);
     setModalSolicitarConsulta(null);
   };
 
@@ -319,7 +391,7 @@ export default function App() {
 
     const novoExame = {
       id: Date.now(),
-      paciente: 'VOCÊ (PACIENTE)',
+      paciente: 'FERNANDA SILVA',
       tipo: tipoExame,
       descricao: descricaoExame,
       data: new Date().toLocaleDateString('pt-BR'),
@@ -328,6 +400,18 @@ export default function App() {
     };
 
     setListaExames([novoExame, ...listaExames]);
+
+    setNotificacoesMedico(prev => [
+      {
+        id: Date.now(),
+        titulo: 'Novo Exame Anexado',
+        descricao: `Fernanda Silva enviou um novo exame: ${tipoExame} - ${descricaoExame}`,
+        data: 'Agora',
+        lida: false
+      },
+      ...prev
+    ]);
+
     alert("Exame enviado com sucesso para a equipe médica em Triunfo!");
     setDescricaoExame('');
     setNomeArquivo('');
@@ -351,6 +435,18 @@ export default function App() {
     };
 
     setListaLaudosMedico([novoLaudo, ...listaLaudosMedico]);
+
+    setNotificacoesPaciente(prev => [
+      {
+        id: Date.now(),
+        titulo: 'Novo Laudo / Parecer Médico',
+        descricao: `Dr. Emiliano Figueira emitiu um novo laudo para você: "${tituloLaudo}"`,
+        data: 'Agora',
+        lida: false
+      },
+      ...prev
+    ]);
+
     alert("Laudo/Parecer enviado com sucesso ao paciente!");
     setConteudoLaudo('');
   };
@@ -504,7 +600,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#EEF2FF] flex font-sans text-slate-800 relative">
       
-      {/* MODAL PARA ADICIONAR NOVA EVOLUÇÃO AO PRONTUÁRIO (SEM SOBRESCREVER OS ANTERIORES) */}
+      {/* MODAL PARA ADICIONAR NOVA EVOLUÇÃO AO PRONTUÁRIO */}
       {modalAtualizarProntuario && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-6 max-w-lg w-full shadow-2xl space-y-4 border border-slate-200">
@@ -685,7 +781,7 @@ export default function App() {
               </div>
 
               <p className="text-[11px] text-slate-500 italic bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-amber-900">
-                ℹ️ Ao enviar, a consulta será gerada no perfil do paciente com notificação pendente de confirmação para prevenir faltas.
+                ℹ️ Ao enviar, a consulta será gerada no perfil do paciente e adicionada automaticamente à sua agenda médica com notificação imediata.
               </p>
 
               <div className="flex justify-end space-x-2 pt-2">
@@ -815,10 +911,16 @@ export default function App() {
               <span className="text-[9px] uppercase tracking-tighter">Configurações</span>
             </button>
 
-            <div className="flex flex-col items-center text-slate-600 hover:text-[#7080E0] transition-all cursor-pointer hover:scale-110 active:scale-95">
+            <button 
+              onClick={() => setActiveTab('notifications')}
+              className={`flex flex-col items-center transition-all duration-200 cursor-pointer hover:scale-110 active:scale-95 relative ${activeTab === 'notifications' ? 'text-[#7080E0] font-bold' : 'text-slate-600 hover:text-[#7080E0]'}`}
+            >
               <Bell className="w-5 h-5 mb-1" />
               <span className="text-[9px] uppercase tracking-tighter">Notificações</span>
-            </div>
+              {((role === 'patient' ? notificacoesPaciente : notificacoesMedico).filter(n => !n.lida).length > 0) && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
+              )}
+            </button>
 
             <div 
               onClick={() => setActiveTab('settings')}
@@ -834,110 +936,96 @@ export default function App() {
 
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
           
-          {/* LEMBRETE DINÂMICO DE PROXIMIDADE PARA O PACIENTE */}
-          {role === 'patient' && activeTab !== 'help' && consultasPaciente.length > 0 && (() => {
-            const prox = consultasPaciente[0];
-            const dias = calcularDiasRestantes(prox.dataOriginal);
-            if (dias === null) return null;
-
-            let mensagemAlerta = "";
-            let corFundo = "bg-indigo-50 border-indigo-200 text-[#3B4793]";
-            
-            if (dias < 0) {
-              mensagemAlerta = `A sua consulta com o(a) ${prox.medico} ocorreu há ${Math.abs(dias)} dia(s).`;
-            } else if (dias === 0) {
-              mensagemAlerta = `⚠️ É HOJE! A sua consulta com o(a) ${prox.medico} (${prox.especialidade}) é hoje às ${prox.horario}! Não falte para evitar vagas ociosas.`;
-              corFundo = "bg-amber-50 border-amber-300 text-amber-900";
-            } else if (dias === 1) {
-              mensagemAlerta = `🔔 Lembrete Municipal: A sua consulta com o(a) ${prox.medico} é AMANHÃ às ${prox.horario}. Confirme presença abaixo!`;
-              corFundo = "bg-blue-50 border-blue-200 text-blue-900";
-            } else {
-              mensagemAlerta = `⏳ Falta(m) ${dias} dia(s) para a sua próxima consulta (${prox.especialidade} em Triunfo-PE). Mantenha seus dados atualizados!`;
-            }
-
-            return (
-              <div className={`p-4 rounded-2xl border shadow-sm flex items-center justify-between ${corFundo}`}>
-                <div className="flex items-center space-x-3">
-                  <Clock className="w-5 h-5 shrink-0 animate-pulse" />
-                  <p className="text-xs font-bold">{mensagemAlerta}</p>
-                </div>
-                {prox.statusPresenca.includes('Pendente') && (
+          {/* ABA DE NOTIFICAÇÕES */}
+          {activeTab === 'notifications' && (
+            <div className="space-y-6 max-w-3xl mx-auto">
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+                <div className="flex justify-between items-center border-b pb-4">
+                  <div>
+                    <h2 className="text-sm font-bold text-[#3B4793] uppercase tracking-wider">Notificações em Tempo Real</h2>
+                    <p className="text-xs text-slate-500">Histórico de avisos entre médicos e pacientes na rede municipal de Triunfo-PE.</p>
+                  </div>
                   <button 
-                    onClick={() => confirmarPresencaConsulta(prox.id)}
-                    className="px-4 py-1.5 bg-[#7080E0] hover:bg-[#5A6AC8] text-white text-[11px] font-bold rounded-xl shadow cursor-pointer uppercase shrink-0"
+                    onClick={() => {
+                      if (role === 'patient') {
+                        setNotificacoesPaciente(notificacoesPaciente.map(n => ({ ...n, lida: true })));
+                      } else {
+                        setNotificacoesMedico(notificacoesMedico.map(n => ({ ...n, lida: true })));
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-xl uppercase tracking-wider cursor-pointer"
                   >
-                    Confirmar Presença
+                    Marcar todas como lidas
                   </button>
-                )}
+                </div>
+
+                <div className="space-y-3">
+                  {(role === 'patient' ? notificacoesPaciente : notificacoesMedico).map((notif) => (
+                    <div key={notif.id} className={`p-4 rounded-2xl border transition-all ${notif.lida ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-indigo-50/70 border-indigo-200 text-indigo-900 shadow-sm'}`}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-bold uppercase">{notif.titulo}</span>
+                        <span className="text-[10px] font-semibold text-slate-400">{notif.data}</span>
+                      </div>
+                      <p className="text-xs">{notif.descricao}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            );
-          })()}
+            </div>
+          )}
 
-          {/* LEMBRETE DINÂMICO DE PROXIMIDADE PARA O MÉDICO (NA TELA PRINCIPAL) */}
-          {role === 'doctor' && activeTab !== 'help' && consultasMedico.length > 0 && (() => {
-            const proxDoc = consultasMedico[0];
-            const diasDoc = calcularDiasRestantes(proxDoc.dataOriginal);
-            if (diasDoc === null) return null;
-
-            let mensagemDoc = "";
-            let estiloDoc = "bg-blue-50 border-blue-200 text-blue-900";
-
-            if (diasDoc === 0) {
-              mensagemDoc = `🚨 ATENÇÃO DOUTOR: A sua próxima consulta é HOJE com o(a) paciente ${proxDoc.paciente} (${proxDoc.especialidade}) às ${proxDoc.horario}! Prontuário pronto abaixo.`;
-              estiloDoc = "bg-amber-50 border-amber-300 text-amber-900";
-            } else if (diasDoc === 1) {
-              mensagemDoc = `🔔 Lembrete de Agenda: Próxima consulta amanhã às ${proxDoc.horario} com ${proxDoc.paciente}.`;
-            } else {
-              mensagemDoc = `📅 Próxima consulta em ${diasDoc} dia(s) (${proxDoc.data} às ${proxDoc.horario}) com ${proxDoc.paciente}.`;
-            }
-
-            return (
-              <div className={`p-4 rounded-2xl border shadow-sm flex items-center space-x-3 ${estiloDoc}`}>
-                <Clock className="w-5 h-5 shrink-0 animate-pulse" />
-                <p className="text-xs font-bold">{mensagemDoc}</p>
-              </div>
-            );
-          })()}
-
-          {/* ABA DE AJUDA & FALE CONOSCO (COM NOVA PERGUNTA NO FAQ) */}
+          {/* ABA DE AJUDA & FALE CONOSCO */}
           {activeTab === 'help' && (
             <div className="space-y-6 max-w-3xl mx-auto">
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
                 <div>
-                  <h2 className="text-sm font-bold text-[#3B4793] uppercase tracking-wider">CENTRAL DE AJUDA &amp; SUPORTE — TRIUNFO-PE</h2>
+                  <h2 className="text-sm font-bold text-[#3B4793] uppercase tracking-wider">CENTRAL DE AJUDA & SUPORTE — TRIUNFO-PE</h2>
+                  <p className="text-xs text-slate-500 mt-1">Dúvidas frequentes sobre o agendamento ambulatório e acompanhamento na rede municipal de saúde.</p>
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-slate-700 uppercase">Perguntas Frequentes (FAQ)</h3>
+                  <h3 className="text-xs font-bold text-slate-700 uppercase border-b pb-2">Perguntas Frequentes (FAQ)</h3>
                   
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                    <p className="text-xs font-bold text-[#7080E0]">Por que devo confirmar ou cancelar minha consulta com antecedência?</p>
-                    <p className="text-xs text-slate-600">A confirmação e o cancelamento antecipado evitam o absenteísmo (faltas sem aviso), permitindo que a vaga seja direcionada imediatamente a outro cidadão na fila de espera do município.</p>
+                    <p className="text-xs font-bold text-[#7080E0]">Como funcionam as notificações recíprocas?</p>
+                    <p className="text-xs text-slate-600">Sempre que um médico agenda uma consulta para você ou emite um laudo, você recebe um aviso imediato. O mesmo acontece no painel do médico quando você agenda uma consulta ou envia um exame.</p>
                   </div>
 
-                  <div className="p-4 bg-[#7080E0]/10 rounded-2xl border border-[#7080E0]/30 space-y-1">
-                    <p className="text-xs font-bold text-[#3B4793]">Você tem alguma dificuldade para comparecer à consulta? Fale conosco!</p>
-                    <p className="text-xs text-slate-700">Se tiver imprevistos de transporte, saúde ou incompatibilidade de horário, entre em contato antecipadamente com a Secretaria de Saúde pelos canais abaixo para reagendarmos o seu atendimento e liberarmos a sua vaga.</p>
+                  <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/80 space-y-1">
+                    <p className="text-xs font-bold text-amber-900">Tenho dificuldade de locomoção ou transporte para ir à consulta. O que fazer?</p>
+                    <p className="text-xs text-amber-800">Caso você enfrente dificuldades de mobilidade ou falta de transporte (seja na zona urbana ou rural de Triunfo-PE), entre em contato imediatamente com o suporte ou a Secretaria de Saúde pelos canais abaixo. A nossa equipe avaliará a melhor forma de viabilizar o seu deslocamento ou suporte logístico até o local do atendimento.</p>
                   </div>
 
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-                    <p className="text-xs font-bold text-[#7080E0]">O que fazer se o médico solicitar uma consulta para mim?</p>
-                    <p className="text-xs text-slate-600">Acesse a aba "Consultas", verifique a notificação de marcação solicitada pelo médico e clique em "Confirmar" ou "Cancelar Vaga".</p>
+                    <p className="text-xs font-bold text-[#7080E0]">Como faço para confirmar minha presença em uma consulta?</p>
+                    <p className="text-xs text-slate-600">Acesse a aba <strong>"Consultas"</strong> no menu lateral, escolha a consulta desejada e clique em <strong>"Confirmar"</strong>. Isso ajuda a Prefeitura a reduzir o absenteísmo e liberará horários ociosos para outros munícipes.</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                    <p className="text-xs font-bold text-[#7080E0]">O que acontece se eu precisar desmarcar ou cancelar?</p>
+                    <p className="text-xs text-slate-600">Na mesma aba de <strong>"Consultas"</strong>, basta clicar no botão <strong>"Cancelar Vaga"</strong>. A sua vaga será disponibilizada imediatamente na rede municipal de saúde de Triunfo-PE para quem estiver na fila de espera.</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                    <p className="text-xs font-bold text-[#7080E0]">Como enviar resultados de exames para o médico?</p>
+                    <p className="text-xs text-slate-600">Vá até a aba <strong>"Exames"</strong>, selecione o tipo de exame (Sangue, Imagem, Biópsia), adicione uma breve descrição e faça o upload do arquivo em formato PDF ou Imagem. O médico receberá o documento no painel dele instantaneamente.</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+                    <p className="text-xs font-bold text-[#7080E0]">Meus dados de prontuário ficam salvos?</p>
+                    <p className="text-xs text-slate-600">Sim! O sistema preserva todas as evoluções históricas e condutas registradas pelos médicos sem apagar ou sobrescrever atendimentos anteriores, garantindo o histórico clínico completo do paciente.</p>
                   </div>
                 </div>
 
-                {/* FALE CONOSCO COM NÚMERO FICTÍCIO */}
                 <div className="border-t pt-6 space-y-4">
                   <h3 className="text-xs font-bold text-[#3B4793] uppercase tracking-wider">Fale Conosco — Secretaria Municipal de Saúde</h3>
-                  <p className="text-xs text-slate-600">Atendimento de segunda a sexta-feira, das 08:00 às 17:00.</p>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                     <div className="p-4 bg-indigo-50/60 border border-indigo-100 rounded-2xl flex items-center space-x-3">
                       <div className="w-10 h-10 bg-[#7080E0] text-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
                         <Phone className="w-5 h-5" />
                       </div>
                       <div>
-                        <p className="text-[10px] text-slate-500 uppercase font-bold">Central Telefônica (Fictícia)</p>
+                        <p className="text-[10px] text-slate-500 uppercase font-bold">Central Telefônica (Atendimento)</p>
                         <p className="text-xs font-extrabold text-[#3B4793]">0800 081-2026</p>
                       </div>
                     </div>
@@ -962,7 +1050,6 @@ export default function App() {
               <h1 className="text-xl font-extrabold tracking-wider text-[#3B4793] uppercase">CONFIGURAÇÕES</h1>
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4 h-fit">
                   <button 
                     onClick={() => setConfigSubTab('account')}
@@ -993,7 +1080,7 @@ export default function App() {
             </div>
           )}
 
-          {activeTab !== 'settings' && activeTab !== 'help' && (
+          {activeTab !== 'settings' && activeTab !== 'help' && activeTab !== 'notifications' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* COLUNA ESQUERDA */}
@@ -1005,16 +1092,15 @@ export default function App() {
                       <div className="bg-[#7080E0] text-white p-6 rounded-3xl shadow-md relative overflow-hidden">
                         <div className="space-y-2 z-10">
                           <h2 className="text-xl font-extrabold tracking-wide">PAINEL MÉDICO — TRIUNFO/PE</h2>
-                          <p className="text-xs text-indigo-100 font-semibold">PRONTUÁRIOS CLÍNICOS E CONTROLE DE ABSENTEÍSMO</p>
-                          <p className="text-xs text-white font-medium pt-2">AINDA RESTAM 4 PACIENTES PARA HOJE!</p>
+                          <p className="text-xs text-indigo-100 font-semibold">PRONTUÁRIOS CLÍNICOS E NOTIFICAÇÕES EM TEMPO REAL</p>
+                          <p className="text-xs text-white font-medium pt-2">AGENDA ATUALIZADA DINAMICAMENTE COM OS AGENDAMENTOS DOS PACIENTES!</p>
                         </div>
                       </div>
 
-                      {/* PRONTUÁRIOS PRONTOS PARA O MÉDICO LER */}
                       <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
                         <h3 className="text-xs font-bold text-[#3B4793] uppercase tracking-wider flex items-center">
                           <FileText className="w-4 h-4 mr-2" />
-                          Prontuários Prontos para Consulta de Hoje
+                          Prontuários e Agenda de Consultas
                         </h3>
                         <div className="space-y-3">
                           {consultasMedico.map((item) => (
@@ -1026,9 +1112,9 @@ export default function App() {
                                 </span>
                               </div>
                               <p className="text-xs text-slate-700 bg-white p-3 rounded-xl border border-slate-100">
-                                <strong className="text-[#3B4793]">Prontuário / Histórico:</strong> {item.prontuario}
+                                <strong className="text-[#3B4793]">Detalhes:</strong> {item.prontuario}
                               </p>
-                              <p className="text-[10px] text-slate-500 italic">Queixa principal: {item.queixa} (Horário: {item.horario})</p>
+                              <p className="text-[10px] text-slate-500 italic">Queixa / Motivo: {item.queixa} (Horário: {item.horario} - Data: {item.data})</p>
                             </div>
                           ))}
                         </div>
@@ -1063,7 +1149,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      {/* HISTÓRICO DE SAÚDE E TAXA DE ABSENTEÍSMO DO PACIENTE */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-3">
                           <h3 className="text-xs font-bold text-[#3B4793] uppercase tracking-wider flex items-center">
@@ -1096,7 +1181,6 @@ export default function App() {
                   )
                 )}
 
-                {/* ABA DE PACIENTES COM HISTÓRICO ACUMULATIVO E IMUTÁVEL DE EVOLUÇÕES CLÍNICAS */}
                 {activeTab === 'pacientes' && role === 'doctor' && (
                   <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
                     <div>
@@ -1129,7 +1213,6 @@ export default function App() {
                             </div>
                           </div>
 
-                          {/* BLOCO DE DADOS CADASTRAIS (CPF, RG, NASCIMENTO, ENDEREÇO) */}
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-white p-3 rounded-2xl border border-slate-100 text-[11px]">
                             <div>
                               <span className="text-[9px] text-slate-400 font-bold uppercase block">CPF:</span>
@@ -1149,7 +1232,6 @@ export default function App() {
                             </div>
                           </div>
 
-                          {/* HISTÓRICO DE EVOLUÇÕES CLÍNICAS (NÃO SOBRESCREVE) */}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-700">
                             <div className="bg-white p-3.5 rounded-2xl border border-slate-100 space-y-3">
                               <div className="flex items-center space-x-1 text-[#3B4793] font-bold uppercase text-[10px]">
@@ -1189,7 +1271,7 @@ export default function App() {
                   <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
                     <div>
                       <h2 className="text-sm font-bold text-[#3B4793] uppercase tracking-wider">NOVA SOLICITAÇÃO DE MARCAÇÃO DE CONSULTA — TRIUNFO-PE</h2>
-                      <p className="text-xs text-slate-500 mt-1">Preencha os dados abaixo para solicitar o seu agendamento ambulatorial na rede municipal.</p>
+                      <p className="text-xs text-slate-500 mt-1">Preencha os dados abaixo para solicitar o seu agendamento. A notificação será enviada ao médico instantaneamente!</p>
                     </div>
 
                     <form onSubmit={handleAgendarConsulta} className="space-y-4">
@@ -1537,9 +1619,9 @@ export default function App() {
               <div className="space-y-6">
                 <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 space-y-4">
                   <div className="flex justify-between items-center text-xs font-bold text-slate-700 uppercase">
-                    <span>&lt;</span>
+                    <span>◀</span>
                     <span>CALENDÁRIO — Out 2026</span>
-                    <span>&gt;</span>
+                    <span>▶</span>
                   </div>
                   <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400">
                     <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
@@ -1557,10 +1639,10 @@ export default function App() {
                   <h3 className="text-xs font-bold text-[#3B4793] uppercase tracking-wider">ALERTAS MUNICIPAIS</h3>
                   <div className="space-y-2 text-[11px] text-slate-600">
                     <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 font-medium">
-                      DR. EMILIANO FIGUEIRA CONFIRMOU A CONSULTA.
+                      SISTEMA SINCRONIZADO EM TEMPO REAL ENTRE PACIENTES E MÉDICOS.
                     </div>
                     <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 font-medium">
-                      CAMPANHA: "NÃO FALTE À CONSULTA" REDUZIU O ABSENTEÍSMO EM 15%.
+                      NOTIFICAÇÕES ATIVADAS PARA AGENDAMENTOS MÚTUOS.
                     </div>
                   </div>
                 </div>
