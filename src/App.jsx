@@ -224,7 +224,7 @@ export default function App() {
       if (p.id === modalAtualizarProntuario.id) {
         return {
           ...p,
-          historicoEvolucoes: [novaEvolucao, ...p.historicoEvolucoes] // Adiciona no topo, preservando os registros anteriores
+          historicoEvolucoes: [novaEvolucao, ...p.historicoEvolucoes]
         };
       }
       return p;
@@ -899,13 +899,12 @@ export default function App() {
             );
           })()}
 
-          {/* ABA DE AJUDA & FALE CONOSCO */}
+          {/* ABA DE AJUDA & FALE CONOSCO (COM NOVA PERGUNTA NO FAQ) */}
           {activeTab === 'help' && (
             <div className="space-y-6 max-w-3xl mx-auto">
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
                 <div>
                   <h2 className="text-sm font-bold text-[#3B4793] uppercase tracking-wider">CENTRAL DE AJUDA &amp; SUPORTE — TRIUNFO-PE</h2>
-                  <p className="text-xs text-slate-500 mt-1">Como podemos reduzir o absenteísmo e organizar o agendamento ambulatorial na nossa rede municipal?</p>
                 </div>
 
                 <div className="space-y-4">
@@ -914,6 +913,11 @@ export default function App() {
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
                     <p className="text-xs font-bold text-[#7080E0]">Por que devo confirmar ou cancelar minha consulta com antecedência?</p>
                     <p className="text-xs text-slate-600">A confirmação e o cancelamento antecipado evitam o absenteísmo (faltas sem aviso), permitindo que a vaga seja direcionada imediatamente a outro cidadão na fila de espera do município.</p>
+                  </div>
+
+                  <div className="p-4 bg-[#7080E0]/10 rounded-2xl border border-[#7080E0]/30 space-y-1">
+                    <p className="text-xs font-bold text-[#3B4793]">Você tem alguma dificuldade para comparecer à consulta? Fale conosco!</p>
+                    <p className="text-xs text-slate-700">Se tiver imprevistos de transporte, saúde ou incompatibilidade de horário, entre em contato antecipadamente com a Secretaria de Saúde pelos canais abaixo para reagendarmos o seu atendimento e liberarmos a sua vaga.</p>
                   </div>
 
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
