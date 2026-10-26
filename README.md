@@ -1,5 +1,5 @@
 # 🏥 MedConecta — Gestão Ambulatorial e Controle de Absenteísmo
-**Projeto Integrador / Desafio Acadêmico — Análise e Desenvolvimento de Sistemas (ADS)**  
+**Projeto Tópicos Integradores — Análise e Desenvolvimento de Sistemas (ADS)**  
 **Local de Aplicação:** Unidade Mista de Triunfo-PE / Rede Municipal de Saúde  
 
 ---
@@ -23,7 +23,7 @@ A ausência de pacientes a consultas agendadas gera vagas ociosas, aumenta o tem
 - **Registro de Conduta Médica:** Campo dedicado para detalhamento de condutas, prescrições e orientações pós-atendimento.
 - **Solicitação Direta de Consultas:** Possibilidade de o médico agendar/solicitar um retorno ou consulta especializada diretamente para o paciente.
 - **Emissão de Laudos e Pareceres:** Envio de pareceres técnicos e prescrições diretamente para o perfil do munícipe.
-- **Visualização de ExamesAnexados:** Acesso rápido aos exames enviadas previamente pelos pacientes (PDF/Imagens).
+- **Visualização de Exames Anexados:** Acesso rápido aos exames enviados previamente pelos pacientes (PDF/Imagens).
 
 ### 👤 Painel do Paciente
 - **Confirmação e Cancelamento de Vagas:** Notificações dinâmicas e lembretes para confirmar presença ou liberar a vaga antecipadamente.
@@ -42,8 +42,11 @@ A ausência de pacientes a consultas agendadas gera vagas ociosas, aumenta o tem
 
 ---
 
-## 📂 Como Executar o Projeto Localmente
+## ⚙️ Guia Passo a Passo: Como Instalar e Executar o Projeto
 
-1. **Clonar o repositório:**
-   ```bash
-   git clone [https://github.com/lucascorreia90/medconecta.git](https://github.com/lucascorreia90/medconecta.git)
+Para executar esta aplicação na tua máquina local, certifica-te de que tens o **Node.js** e o **Git** instalados no teu computador. Segue o procedimento detalhado abaixo através do terminal:
+
+### 1. Clonar o Repositório
+Abre o terminal (CMD, PowerShell ou Git Bash) e executa o seguinte comando para descarregar o código fonte do projeto para a tua máquina:
+```bash
+git clone [https://github.com/lucascorreia90/medconecta.git](https://github.com/lucascorreia90/medconecta.git)
