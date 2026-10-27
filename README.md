@@ -55,7 +55,7 @@ A ausência de pacientes a consultas agendadas gera vagas ociosas, aumenta o tem
 
 ## ⚙️ Guia Passo a Passo: Como Instalar e Executar o Projeto
 
-Para executar esta aplicação na tua máquina local, certifica-te de que tens o **Node.js** e o **Git** instalados no teu computador. Segue o procedimento detalhado abaixo através do terminal:
+Para executar esta aplicação na tua máquina local, certifique-se de que tenha o **Node.js** e o **Git** instalados no teu computador. Segue o procedimento detalhado abaixo através do terminal:
 
 ### 1. Clonar o Repositório
 Abre o terminal (CMD, PowerShell ou Git Bash) e executa o seguinte comando para descarregar o código fonte do projeto para a tua máquina:
